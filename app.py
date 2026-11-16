@@ -100,5 +100,22 @@ def delete(post_id):
     return redirect(url_for('index'))
 
 
+# Like Route (/like/<post_id>)
+@app.route('/like/<int:post_id>')
+def like(post_id):
+    blog_posts = load_posts()
+
+    # Find the post and increment its likes count
+    for post in blog_posts:
+        if post['id'] == post_id:
+            post['likes'] = post.get('likes', 0) + 1
+            break
+
+    # Save the updated posts back to the JSON file
+    save_posts(blog_posts)
+
+    # Redirect back to the home page
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
