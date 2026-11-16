@@ -18,6 +18,13 @@ def save_posts(posts):
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(posts, f, indent=4, ensure_ascii=False)
 
+def fetch_post_by_id(post_id):
+    blog_posts = load_posts()
+    for post in blog_posts:
+        if post['id'] == post_id:
+            return post
+    return None
+
 @app.route('/')
 def index():
     # add code here to fetch the job posts from a file
@@ -55,6 +62,27 @@ def add():
         return redirect(url_for('index'))
 
     return render_template('add.html')
+
+
+@app.route('/update/<int:post_id>', methods=['GET', 'POST'])
+def update(post_id):
+    post = fetch_post_by_id(post_id)
+    if post is None:
+        return "Post not found", 404
+
+    if request.method == 'POST':
+        blog_posts = load_posts()
+        for p in blog_posts:
+            if p['id'] == post_id:
+                p['title'] = request.form.get('title')
+                p['author'] = request.form.get('author')
+                p['content'] = request.form.get('content')
+                break
+
+        save_posts(blog_posts)
+        return redirect(url_for('index'))
+
+    return render_template('update.html', post=post)
 
 
 # Delete Route (/delete/<post_id>)
